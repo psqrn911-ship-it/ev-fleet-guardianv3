@@ -1,0 +1,8 @@
+{
+  "name": "ev-fleet-monitor",
+  "version": "3.0.0",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node Backend/server.js", "test": "node --test Backend/test/battery.test.js" },
+  "dependencies": { "cors": "^2.8.6", "express": "^5.2.1", "mongoose": "^9.3.3", "nodemailer": "^7.0.0" }
+}

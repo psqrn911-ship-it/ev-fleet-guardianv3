@@ -1,0 +1,8 @@
+{
+  "functions": { "api/index.js": { "maxDuration": 30 } },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/data", "destination": "/api" }
+  ],
+  "crons": [ { "path": "/api/cron/tick", "schedule": "30 3 * * *" } ]
+}

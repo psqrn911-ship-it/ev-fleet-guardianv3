@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<title>EV Fleet Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="light" data-view="auth" data-role="">
+<div class="notif" id="notif" role="status" aria-live="polite"><span id="notif-icon">⚡</span><span id="notif-msg"></span></div>
+
+<!-- SIGN IN / REQUEST ACCESS -->
+<div class="auth" id="auth">
+  <div class="auth-card">
+    <div class="auth-logo"><svg viewBox="0 0 32 32" width="32" height="32" fill="none"><rect width="32" height="32" rx="8" fill="#00c48c" opacity=".12"/><path d="M8 20L13 10L16 15L19 12L24 20H8Z" fill="#00c48c"/><circle cx="11" cy="23" r="2.5" fill="#00c48c"/><circle cx="21" cy="23" r="2.5" fill="#00c48c"/></svg><span>EV<em>Fleet</em></span></div>
+    <h1 id="auth-title">Sign in</h1>
+    <p id="auth-sub">Monitor your electric vehicles in real time.</p>
+    <form id="auth-form" novalidate>
+      <label id="f-name" hidden>Full name<input name="name" autocomplete="name"/></label>
+      <label>Email<input name="email" type="email" autocomplete="email"/></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password"/></label>
+      <div class="form-msg" id="auth-msg" role="alert"></div>
+      <button class="btn primary" id="auth-btn" type="submit">Sign in</button>
+    </form>
+    <p class="auth-switch"><span id="sw-text">New here?</span> <a href="#" id="sw-link">Request access</a></p>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#00c48c" opacity=".12"/><path d="M8 20L13 10L16 15L19 12L24 20H8Z" fill="#00c48c"/><circle cx="11" cy="23" r="2.5" fill="#00c48c"/><circle cx="21" cy="23" r="2.5" fill="#00c48c"/></svg><span>EV<em>Fleet</em></span></div>
+    <nav class="nav-group" aria-label="Main">
+      <div class="nav-label">Main</div>
+      <a class="nav-item" data-go="fleet" href="#/"><svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7.5L9 2l7 5.5V16a1 1 0 01-1 1H3a1 1 0 01-1-1V7.5z"/><path d="M7 17V10h4v7"/></svg>Home</a>
+      <a class="nav-item" data-go="battery" href="#/"><svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="8" rx="1.5"/><path d="M15 8v2"/><path d="M4 9h6"/></svg>Battery Analysis</a>
+      <a class="nav-item" data-go="maps" href="#/"><svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="7" r="3"/><path d="M9 17C9 17 3 12 3 7a6 6 0 0112 0c0 5-6 10-6 10z"/></svg>Maps &amp; Tracking</a>
+      <a class="nav-item" data-go="notifications" href="#/notifications"><svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 13V8a5 5 0 0110 0v5l1.5 2h-13L4 13z"/><path d="M7.5 16.5a1.5 1.5 0 003 0"/></svg>Notifications<span class="nav-badge" id="note-count" hidden></span></a>
+      <a class="nav-item" data-go="admin" href="#/admin" id="nav-admin" hidden><svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="6" r="3"/><path d="M1.5 16c0-3 2.5-5 5.5-5s5.5 2 5.5 5M13 4.5v4M11 6.5h4"/></svg>Team &amp; settings<span class="nav-badge" id="req-count" hidden></span></a>
+    </nav>
+    <div class="sidebar-footer"><div class="conn-badge"><span class="conn-dot disconnected" id="conn-dot"></span><span id="conn-label" style="font-size:12px;font-weight:500;color:var(--text2)">Connecting…</span></div></div>
+  </aside>
+
+  <header class="topnav">
+    <div class="page-crumb" id="page-crumb">Fleet overview</div>
+    <div class="nav-spacer"></div>
+    <div class="menu-wrap">
+      <button class="theme-btn bell" id="bell-btn" aria-haspopup="true" aria-expanded="false" aria-label="Notifications"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 13V8a5 5 0 0110 0v5l1.5 2h-13L4 13z"/><path d="M7.5 16.5a1.5 1.5 0 003 0"/></svg><span class="bell-dot" id="bell-count" hidden></span></button>
+      <div class="menu bell-panel" id="bell-panel" hidden>
+        <div class="bp-head"><b>Notifications</b><button class="link" id="bp-readall">Mark all read</button></div>
+        <div class="bp-list" id="bp-list"></div>
+        <a class="bp-foot" href="#/notifications" data-go="notifications">See all notifications</a>
+      </div>
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v1M8 14v1M1 8h1M14 8h1M3.2 3.2l.7.7M12.1 12.1l.7.7M12.1 3.2l-.7.7M3.2 12.1l-.7.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <div class="menu-wrap">
+      <button class="profile-btn" id="profile-btn" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">?</button>
+      <div class="menu" id="menu" hidden>
+        <div class="menu-head"><b id="m-name"></b><span id="m-email"></span><em id="m-role"></em></div>
+        <a href="#/profile">Profile &amp; password</a><button id="logout-btn">Sign out</button>
+      </div>
+    </div>
+    <div class="last-updated-bar"><span class="lu-dot"></span><span>Updated <span id="topnav-updated">—</span></span></div>
+  </header>
+  <div class="geo-alert-bar" id="geo-alert-bar"><span id="geo-alert-msg"></span><span id="geo-alert-dist" style="font-family:var(--mono);margin-left:auto"></span></div>
+
+  <main class="main">
+    <!-- FLEET -->
+    <section class="section" id="sec-fleet">
+      <div class="fleet-head"><div><h1>Fleet overview</h1><p>One shared dashboard for the whole team. Select a vehicle to open its battery, location and geofence.</p></div><button class="btn primary" data-need="edit" onclick="openAdd()">Add vehicle</button></div>
+      <div class="summary">
+        <div class="sum-item"><b id="fleet-total">0</b><span>Vehicles</span></div>
+        <div class="sum-item"><b id="fleet-online" style="color:var(--accent)">0</b><span>Online</span></div>
+        <div class="sum-item"><b id="fleet-charging" style="color:var(--accent2)">0</b><span>Charging</span></div>
+        <div class="sum-item"><b id="fleet-soc">—</b><span>Average charge</span></div>
+        <div class="sum-item"><b id="fleet-alerts">0</b><span>Need attention</span></div>
+      </div>
+      <div class="toolbar">
+        <div class="filters" id="filters" role="group" aria-label="Filter vehicles"><button class="chip on" data-f="all">All</button><button class="chip" data-f="online">Online</button><button class="chip" data-f="charging">Charging</button><button class="chip" data-f="low">Low battery</button><button class="chip" data-f="offline">Offline</button></div>
+        <input class="search" id="fleet-search" type="search" placeholder="Search name or plate" aria-label="Search vehicles"/>
+      </div>
+      <div class="fleet-grid" id="fleet-grid"></div>
+      <div class="fleet-empty" id="fleet-empty" hidden></div>
+    </section>
+
+    <!-- VEHICLE HEADER -->
+    <div class="veh-head" id="veh-head">
+      <a class="back" href="#/">‹ All vehicles</a>
+      <div class="vh-main"><h1 id="vh-name">—</h1><span class="veh-plate" id="vh-plate">—</span><span class="status-chip" id="vh-status">—</span></div>
+      <div class="tabs" role="tablist"><button class="tab" data-go="overview">Overview</button><button class="tab" data-go="battery">Battery</button><button class="tab" data-go="maps">Map &amp; geofence</button></div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="section" id="sec-overview">
+      <div class="kpis">
+        <div class="card"><div class="card-header"><span class="card-title">State of charge</span><span class="tag t-measured" id="ov-soc-tag">Measured</span></div><div><span class="card-value" id="kpi-soc">—</span><span class="card-unit">%</span></div><div class="gauge-wrap"><div class="gauge-bar"><div class="gauge-fill gauge-fill-green" id="soc-bar" style="width:0"></div></div></div><div class="card-sub" id="kpi-soc-sub"></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Voltage</span><span class="tag t-measured">Measured</span></div><div><span class="card-value" id="kpi-voltage">—</span><span class="card-unit">V</span></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Current</span><span class="card-badge" id="c-badge"></span></div><div><span class="card-value" id="kpi-current">—</span><span class="card-unit">A</span></div><div class="card-sub">Negative current is shown as charging</div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Temperature</span><span class="tag t-measured">Measured</span></div><div><span class="card-value" id="kpi-temp">—</span><span class="card-unit">°C</span></div></div>
+      </div>
+      <div class="cards-grid-2">
+        <div class="card"><div class="card-header"><span class="card-title">Live location</span><span class="card-badge" id="ov-geo-badge"></span></div>
+          <div class="veh-row" style="border:0;padding-top:0"><span>Position</span><strong class="mono" id="ov-pos">—</strong></div>
+          <div class="veh-row"><span>Geofence</span><strong id="ov-geo">—</strong></div>
+          <button class="btn" data-go="maps" style="margin-top:14px">Open map &amp; geofence</button></div>
+        <div class="card"><div class="card-header"><span class="card-title">Vehicle details</span></div>
+          <div class="veh-row" style="border:0;padding-top:0"><span>Vehicle ID</span><strong class="mono" id="d-id">—</strong></div>
+          <div class="veh-row" id="d-owner-row" hidden><span>Added by</span><strong id="d-owner">—</strong></div>
+          <div class="veh-row"><span>Last reading</span><strong id="d-seen">—</strong></div>
+          <div class="btn-row"><button class="btn" id="rename-btn" data-need="edit">Rename</button><button class="btn" id="key-btn" data-need="host">New device key</button><button class="btn danger" id="del-btn" data-need="host">Remove vehicle</button></div></div>
+      </div>
+    </section>
+
+    <!-- BATTERY INTELLIGENCE -->
+    <section class="section" id="sec-battery">
+      <div class="sec-head"><div class="sec-title" style="margin:0">Battery intelligence</div><button class="btn" id="spec-btn" data-need="edit">Battery specification</button></div>
+      <div class="legend" aria-label="How to read the labels"><span class="tag t-measured">Measured</span> read from a sensor or the device <span class="tag t-estimate">Estimated</span> calculated by the server <span class="tag t-predict">Prediction</span> statistical forecast <span class="tag t-na">Unavailable</span> not enough data or hardware</div>
+      <div class="banner" id="spec-banner" hidden></div>
+      <div class="bi-kpis" id="bi-kpis"></div>
+      <div class="cards-grid-2">
+        <div class="card"><div class="card-header"><span class="card-title">Charging advice</span><span class="tag t-predict" id="adv-tag">Statistical baseline</span></div><div id="advice-body"></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Diagnostics &amp; alerts</span></div><div id="diag-body"></div></div>
+      </div>
+      <div class="sec-head"><div class="sec-title" style="margin:0;font-size:17px">History</div><div class="filters" id="range-chips" role="group" aria-label="Time range"><button class="chip" data-m="60">1 h</button><button class="chip" data-m="360">6 h</button><button class="chip" data-m="1440">24 h</button><button class="chip" data-m="10080">7 days</button></div></div>
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><span class="card-title">Charge (%)</span></div><div class="chart-wrap"><canvas id="ch-soc"></canvas><div class="chart-empty" hidden></div></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Voltage (V)</span></div><div class="chart-wrap"><canvas id="ch-volt"></canvas><div class="chart-empty" hidden></div></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Current (A)</span></div><div class="chart-wrap"><canvas id="ch-curr"></canvas><div class="chart-empty" hidden></div></div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><span class="card-title">Temperature (°C)</span></div><div class="chart-wrap"><canvas id="ch-temp"></canvas><div class="chart-empty" hidden></div></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Internal resistance (mΩ)</span><span class="tag t-estimate">Estimated</span></div><div class="chart-wrap"><canvas id="ch-res"></canvas><div class="chart-empty" hidden></div></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Cell voltage spread (mV)</span></div><div class="chart-wrap"><canvas id="ch-cell"></canvas><div class="chart-empty" hidden></div></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px"><div class="card-header"><span class="card-title">Motion · MPU6050 g-force (g) and rotation (°/s)</span><span class="tag t-measured">Measured</span></div><div class="chart-wrap"><canvas id="ch-motion"></canvas><div class="chart-empty" hidden></div></div></div>
+      <div class="cards-grid-2">
+        <div class="card"><div class="card-header"><span class="card-title">Capacity (Ah) and SOH (%) over time</span><span class="tag t-estimate">Estimated</span></div><div class="chart-wrap tall"><canvas id="ch-cap"></canvas><div class="chart-empty" hidden></div></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Capacity vs cycles · RUL forecast</span><span class="tag t-predict">Prediction</span></div><div class="chart-wrap tall"><canvas id="ch-rul"></canvas><div class="chart-empty" hidden></div></div><div class="hint" id="rul-note" style="margin-top:10px"></div></div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="section" id="sec-maps">
+      <div class="sec-title">Map &amp; geofence</div>
+      <div class="map-card">
+        <div class="map-header"><div><div class="card-title">Live GPS tracking</div><div class="map-sub" id="map-sub">Waiting for a GPS fix</div></div><span class="card-badge" id="geo-status-badge"></span></div>
+        <div class="map-box"><div id="map-canvas"></div><div class="map-msg" id="map-msg" hidden></div></div>
+      </div>
+      <div class="cards-grid-2" style="margin-bottom:0">
+        <div class="card"><div class="card-header"><span class="card-title">Geofence</span><label class="switch"><input type="checkbox" id="fence-on"/><span>Enabled</span></label></div>
+          <p class="hint" id="fence-hint">Choose a centre on the map, set a radius, then save. Crossing the boundary sends an alert to the dashboard and by email.</p>
+          <div class="fence-row"><label>Radius (km)<input type="number" id="fence-radius" min="0.1" max="500" step="0.1" value="5"/></label><div class="fence-pos"><span>Centre</span><b class="mono" id="fence-centre">Not set</b></div></div>
+          <div class="btn-row" data-need="edit"><button class="btn" id="fence-place">Pick centre on map</button><button class="btn" id="fence-here">Use vehicle location</button><button class="btn primary" id="fence-save">Save geofence</button></div>
+          <div class="veh-row"><span>Distance from centre</span><strong id="fence-dist">—</strong></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Charging stations near the vehicle</span></div><div class="charging-list" id="chg-list"></div><div class="hint" style="margin-top:10px">Source: OpenStreetMap contributors</div></div>
+      </div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section class="section" id="sec-notifications">
+      <div class="fleet-head"><div><h1>Notifications</h1><p>Everything that happens in the fleet: geofence crossings, battery, voltage, current and temperature alerts, charging advice and account activity. The host also receives each one by email.</p></div><div class="btn-row" style="margin:0"><button class="btn" id="desk-btn">Enable desktop alerts</button><button class="btn" id="readall-btn">Mark all read</button></div></div>
+      <div class="toolbar"><div class="filters" id="note-filters" role="group" aria-label="Filter notifications"><button class="chip on" data-n="all">All</button><button class="chip" data-n="unread">Unread</button><button class="chip" data-n="critical">Critical</button><button class="chip" data-n="warning">Warning</button><button class="chip" data-n="info">Info</button></div></div>
+      <div class="card note-card"><div id="note-list"></div><div class="fleet-empty" id="note-empty" hidden>No notifications match this filter.</div><div class="btn-row" style="justify-content:center"><button class="btn" id="note-more" hidden>Load older</button></div></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="section" id="sec-profile">
+      <div class="sec-title">Profile</div>
+      <div class="cards-grid-2">
+        <div class="card"><div class="card-header"><span class="card-title">Account</span></div>
+          <form class="stack" id="prof-form"><label>Full name<input name="name"/></label><label>Email<input id="prof-email" disabled/></label>
+          <div class="veh-row"><span>Role</span><strong id="prof-role"></strong></div><div class="veh-row"><span>Member since</span><strong id="prof-since"></strong></div>
+          <label class="switch check" id="prof-mail-row"><input type="checkbox" name="emailAlerts"/><span>Email me warnings, critical alerts and charging advice</span></label>
+          <div class="form-msg" id="prof-msg" role="alert"></div><button class="btn primary" type="submit">Save</button></form></div>
+        <div class="card"><div class="card-header"><span class="card-title">Change password</span></div>
+          <form class="stack" id="pw-form"><label>Current password<input name="currentPassword" type="password" autocomplete="current-password"/></label><label>New password (8+ characters)<input name="newPassword" type="password" autocomplete="new-password"/></label>
+          <div class="form-msg" id="pw-msg" role="alert"></div><button class="btn primary" type="submit">Update password</button></form></div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="section" id="sec-admin">
+      <div class="sec-title">Team &amp; settings</div>
+      <div class="card"><div class="card-header"><span class="card-title">Waiting for approval</span></div><div id="pending-list"></div></div>
+      <div class="card" style="margin-top:20px"><div class="card-header"><span class="card-title">Team members</span></div><div id="user-list"></div></div>
+      <div class="card" style="margin-top:20px"><div class="card-header"><span class="card-title">System status</span></div><div id="sys-status"></div><div class="btn-row"><button class="btn" id="test-mail">Send test email</button><span class="hint" id="test-mail-msg"></span></div></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal" hidden><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title"><h2 id="modal-title"></h2><div id="modal-body"></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="script.js" defer></script>
+</body>
+</html>
