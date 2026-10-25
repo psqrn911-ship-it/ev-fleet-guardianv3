@@ -1,0 +1,10 @@
+{
+  "name": "ev-backend",
+  "version": "3.0.0",
+  "description": "EV Fleet Monitor backend",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node --test test/battery.test.js" },
+  "engines": { "node": ">=20" },
+  "license": "ISC",
+  "dependencies": { "cors": "^2.8.6", "express": "^5.2.1", "mongoose": "^9.3.3", "nodemailer": "^7.0.0" }
+}
